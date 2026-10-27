@@ -1,0 +1,15 @@
+/**
+ * Routes: onboarding
+ * Purpose: Express router for onboarding module
+ * Owner: Member 4
+ * Section: Inventory-method recommendation logic
+ */
+
+const express = require('express');
+const router = express.Router();
+const controller = require('./onboarding.controller');
+
+// TODO: Wire module endpoints when implemented
+// router.get('/', controller.getAll);
+
+module.exports = router;

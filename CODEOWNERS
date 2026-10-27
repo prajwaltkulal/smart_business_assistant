@@ -1,0 +1,31 @@
+# Smart Business Assistant - Code Ownership Mapping
+
+# Member 1: Frontend Onboarding, Core Pages & Dashboard
+/frontend/src/pages/business-setup/ @member1
+/frontend/src/pages/inventory-onboarding/ @member1
+/frontend/src/pages/products/ @member1
+/frontend/src/pages/dashboard/ @member1
+
+# Member 2: Express Backend Core, Auth, Business, Sales, Team & Middleware
+/backend/src/modules/auth/ @member2
+/backend/src/modules/business/ @member2
+/backend/src/modules/sales/ @member2
+/backend/src/modules/team/ @member2
+/backend/src/middleware/ @member2
+
+# Member 3: Database & Backend Products, Inventory, Dashboard
+/database/ @member3
+/backend/src/modules/products/ @member3
+/backend/src/modules/inventory/ @member3
+/backend/src/modules/dashboard/ @member3
+
+# Member 4: Imports, Insights, Recommendations, Reporting & Tests
+/backend/src/modules/imports/ @member4
+/backend/src/modules/insights/ @member4
+/backend/src/modules/recommendations/ @member4
+/backend/src/modules/onboarding/ @member4
+/frontend/src/pages/sales-billing/ @member4
+/frontend/src/pages/reports-imports/ @member4
+/frontend/src/pages/insights/ @member4
+/frontend/src/pages/recommendations/ @member4
+/backend/src/tests/ @member4
