@@ -1,15 +1,15 @@
 /**
  * Routes: sales
- * Purpose: Express router for sales module
+ * Purpose: Express router for imported sales and daily sales summaries (no POS checkout)
  * Owner: Member 2
- * Section: Manual sales entry, transactions, returns, cancelled bills
  */
 
 const express = require('express');
 const router = express.Router();
 const controller = require('./sales.controller');
 
-// TODO: Wire module endpoints when implemented
-// router.get('/', controller.getAll);
+router.get('/', controller.getSales);
+router.get('/daily-summary', controller.getDailySummary);
+router.get('/:id', controller.getSaleDetails);
 
 module.exports = router;

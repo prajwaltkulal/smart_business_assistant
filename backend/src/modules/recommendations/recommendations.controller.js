@@ -1,12 +1,24 @@
 /**
  * Controller: recommendations
- * Purpose: Handle incoming HTTP requests and responses for recommendations
+ * Purpose: Handle requests for budget-aware restocking suggestions
  * Owner: Member 4
- * Section: Rule-based restocking engine, budget planner, explanations
  */
 
 const service = require('./recommendations.service');
 
 module.exports = {
-  // TODO: Implement controller handlers
+  getRestockPlan: async (req, res, next) => {
+    try {
+      const { businessId, budget = 10000, daysHistory = 30, targetStockDays = 14 } = req.body;
+      const plan = await service.generateRestockPlan({
+        businessId,
+        budget: Number(budget),
+        daysHistory: Number(daysHistory),
+        targetStockDays: Number(targetStockDays)
+      });
+      res.json({ success: true, data: plan });
+    } catch (err) {
+      next(err);
+    }
+  }
 };

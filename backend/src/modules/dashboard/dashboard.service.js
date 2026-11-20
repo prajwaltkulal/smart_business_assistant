@@ -1,12 +1,13 @@
 /**
  * Service: dashboard
- * Purpose: Core business logic for dashboard
+ * Purpose: Aggregation logic for total sales, revenue, profit, inventory value, and stock levels
  * Owner: Member 3
- * Section: Aggregated dashboard summary metrics
  */
 
 const repository = require('./dashboard.repository');
 
 module.exports = {
-  // TODO: Implement business service logic
+  getDashboardSummary: async (businessId) => {
+    return await repository.getAggregatedSummary(businessId);
+  }
 };

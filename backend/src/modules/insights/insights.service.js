@@ -1,12 +1,21 @@
 /**
  * Service: insights
- * Purpose: Core business logic for insights
+ * Purpose: Business logic for sales analysis and product velocity categorization
  * Owner: Member 4
- * Section: Sales trends, top sellers, slow movers, gross profit
  */
 
 const repository = require('./insights.repository');
 
 module.exports = {
-  // TODO: Implement business service logic
+  getSalesTrends: async (businessId, interval) => {
+    return await repository.getTrends(businessId, interval);
+  },
+
+  getTopSellers: async (businessId, limit, days) => {
+    return await repository.getTopProducts(businessId, Number(limit), Number(days));
+  },
+
+  getSlowMovers: async (businessId, limit, days) => {
+    return await repository.getSlowProducts(businessId, Number(limit), Number(days));
+  }
 };

@@ -1,12 +1,19 @@
 /**
  * Controller: dashboard
- * Purpose: Handle incoming HTTP requests and responses for dashboard
+ * Purpose: Handle requests for dashboard summary metrics
  * Owner: Member 3
- * Section: Aggregated dashboard summary metrics
  */
 
 const service = require('./dashboard.service');
 
 module.exports = {
-  // TODO: Implement controller handlers
+  getSummary: async (req, res, next) => {
+    try {
+      const { businessId } = req.query;
+      const summary = await service.getDashboardSummary(businessId);
+      res.json({ success: true, data: summary });
+    } catch (err) {
+      next(err);
+    }
+  }
 };

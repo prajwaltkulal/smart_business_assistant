@@ -1,15 +1,15 @@
 /**
  * Routes: insights
- * Purpose: Express router for insights module
+ * Purpose: Express router for sales trend analysis, top sellers, and slow movers
  * Owner: Member 4
- * Section: Sales trends, top sellers, slow movers, gross profit
  */
 
 const express = require('express');
 const router = express.Router();
 const controller = require('./insights.controller');
 
-// TODO: Wire module endpoints when implemented
-// router.get('/', controller.getAll);
+router.get('/trends', controller.getSalesTrends);
+router.get('/top-sellers', controller.getTopSellers);
+router.get('/slow-movers', controller.getSlowMovers);
 
 module.exports = router;

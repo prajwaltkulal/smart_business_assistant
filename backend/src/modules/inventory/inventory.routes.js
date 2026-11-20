@@ -1,15 +1,17 @@
 /**
  * Routes: inventory
- * Purpose: Express router for inventory module
+ * Purpose: Express router for inventory operations, movements, manual additions/adjustments, and stock alerts
  * Owner: Member 3
- * Section: Stock levels, movements, adjustments, purchases, reconciliation
  */
 
 const express = require('express');
 const router = express.Router();
 const controller = require('./inventory.controller');
 
-// TODO: Wire module endpoints when implemented
-// router.get('/', controller.getAll);
+router.get('/stock', controller.getStockLevels);
+router.get('/movements', controller.getStockMovements);
+router.get('/alerts', controller.getStockAlerts);
+router.post('/adjust', controller.recordAdjustment);
+router.post('/add', controller.recordAddition);
 
 module.exports = router;

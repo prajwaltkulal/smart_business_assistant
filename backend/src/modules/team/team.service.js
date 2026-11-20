@@ -1,12 +1,22 @@
 /**
  * Service: team
- * Purpose: Core business logic for team
+ * Purpose: Business logic for simplified team management and role enforcement
  * Owner: Member 2
- * Section: Employee invites, roles, permissions, activity log, approvals
  */
 
 const repository = require('./team.repository');
 
 module.exports = {
-  // TODO: Implement business service logic
+  getTeamMembers: async (businessId) => {
+    return await repository.getMembers(businessId);
+  },
+
+  inviteMember: async ({ businessId, email, role = 'employee', permissions = {} }) => {
+    if (!email) throw new Error('Employee email is required');
+    return await repository.createMember({ businessId, email, role, permissions });
+  },
+
+  removeMember: async (memberId) => {
+    return await repository.deleteMember(memberId);
+  }
 };
