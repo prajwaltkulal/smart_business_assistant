@@ -1,7 +1,7 @@
 /**
  * Controller: inventory
  * Purpose: Handle requests for stock levels, additions, adjustments, movements, and alerts
- * Owner: Member 3
+ * Owner: Member 1 (Prajwal)
  */
 
 const service = require('./inventory.service');
@@ -9,7 +9,8 @@ const service = require('./inventory.service');
 module.exports = {
   getStockLevels: async (req, res, next) => {
     try {
-      const { businessId, category, search, status } = req.query;
+      const businessId = req.businessMembership?.business_id || req.query.businessId;
+      const { category, search, status } = req.query;
       const stock = await service.getStockLevels({ businessId, category, search, status });
       res.json({ success: true, data: stock });
     } catch (err) {
@@ -19,7 +20,8 @@ module.exports = {
 
   getStockMovements: async (req, res, next) => {
     try {
-      const { businessId, productId, page, limit } = req.query;
+      const businessId = req.businessMembership?.business_id || req.query.businessId;
+      const { productId, page, limit } = req.query;
       const movements = await service.getStockMovements({ businessId, productId, page, limit });
       res.json({ success: true, ...movements });
     } catch (err) {
@@ -29,7 +31,7 @@ module.exports = {
 
   getStockAlerts: async (req, res, next) => {
     try {
-      const { businessId } = req.query;
+      const businessId = req.businessMembership?.business_id || req.query.businessId;
       const alerts = await service.getStockAlerts(businessId);
       res.json({ success: true, data: alerts });
     } catch (err) {
@@ -39,8 +41,9 @@ module.exports = {
 
   recordAdjustment: async (req, res, next) => {
     try {
-      const { businessId, productId, adjustmentQuantity, reason } = req.body;
-      const userId = req.user?.id || req.body.userId;
+      const businessId = req.businessMembership?.business_id || req.body.businessId;
+      const { productId, adjustmentQuantity, reason } = req.body;
+      const userId = req.user?.id;
       const result = await service.recordAdjustment({
         businessId,
         productId,
@@ -48,7 +51,7 @@ module.exports = {
         reason,
         userId
       });
-      res.json({ success: true, data: result });
+      res.json({ success: true, message: 'Stock adjustment recorded successfully', data: result });
     } catch (err) {
       next(err);
     }
@@ -56,8 +59,9 @@ module.exports = {
 
   recordAddition: async (req, res, next) => {
     try {
-      const { businessId, productId, quantity, unitCost, reason } = req.body;
-      const userId = req.user?.id || req.body.userId;
+      const businessId = req.businessMembership?.business_id || req.body.businessId;
+      const { productId, quantity, unitCost, reason } = req.body;
+      const userId = req.user?.id;
       const result = await service.recordAddition({
         businessId,
         productId,
@@ -66,7 +70,7 @@ module.exports = {
         reason,
         userId
       });
-      res.json({ success: true, data: result });
+      res.json({ success: true, message: 'Stock addition recorded successfully', data: result });
     } catch (err) {
       next(err);
     }

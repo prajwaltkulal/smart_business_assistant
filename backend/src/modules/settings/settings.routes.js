@@ -1,15 +1,19 @@
 /**
  * Routes: settings
- * Purpose: Express router for settings module
- * Owner: Member 2
- * Section: Business and user account settings
+ * Purpose: Express router for business and user account settings
+ * Owner: Member 1 (Prajwal)
  */
 
 const express = require('express');
 const router = express.Router();
 const controller = require('./settings.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
+const businessAccess = require('../../middleware/businessAccess.middleware');
 
-// TODO: Wire module endpoints when implemented
-// router.get('/', controller.getAll);
+router.use(authMiddleware);
+router.use(businessAccess());
+
+router.get('/', controller.getSettings);
+router.put('/', businessAccess('owner'), controller.updateSettings);
 
 module.exports = router;

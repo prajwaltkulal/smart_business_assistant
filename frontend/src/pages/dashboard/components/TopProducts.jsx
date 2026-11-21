@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import TopProductsChartPlaceholder from '../../charts/TopProductsChartPlaceholder';
+import TopProductsChartPlaceholder from '../../../components/charts/TopProductsChartPlaceholder';
 
 export default function TopProducts() {
   return (

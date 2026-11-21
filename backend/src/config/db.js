@@ -4,14 +4,28 @@
  * Owner: Member 3
  */
 
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+pool.on('error', (err) => {
+  console.error('[PostgreSQL Pool Error]:', err.message);
+});
+
 module.exports = {
-  query: async (text, params) => {
-    // TODO: Connect with pg Pool once Member 3 configures database
-    console.log('[DB Query Placeholder]:', text);
-    return { rows: [] };
-  },
+  query: (text, params) => pool.query(text, params),
+  pool,
   checkConnection: async () => {
-    // TODO: Verify database connection on startup
-    console.log('[DB Connection Check Placeholder]: Ready to connect');
+    try {
+      const res = await pool.query('SELECT NOW() as current_time');
+      console.log('[PostgreSQL Connected]: Connected successfully at', res.rows[0].current_time);
+      return true;
+    } catch (err) {
+      console.error('[PostgreSQL Connection Failed]:', err.message);
+      return false;
+    }
   }
 };

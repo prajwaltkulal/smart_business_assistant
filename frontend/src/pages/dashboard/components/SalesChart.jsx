@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import SalesChartPlaceholder from '../../charts/SalesChartPlaceholder';
+import SalesChartPlaceholder from '../../../components/charts/SalesChartPlaceholder';
 
 export default function SalesChart() {
   return (

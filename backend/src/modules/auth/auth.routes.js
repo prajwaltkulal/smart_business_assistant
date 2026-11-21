@@ -1,15 +1,16 @@
 /**
  * Routes: auth
- * Purpose: Express router for auth module
+ * Purpose: Express router for user registration, login, and profile verification
  * Owner: Member 2
- * Section: Authentication and session management
  */
 
 const express = require('express');
 const router = express.Router();
 const controller = require('./auth.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
 
-// TODO: Wire module endpoints when implemented
-// router.get('/', controller.getAll);
+router.post('/register', controller.register);
+router.post('/login', controller.login);
+router.get('/me', authMiddleware, controller.me);
 
 module.exports = router;
