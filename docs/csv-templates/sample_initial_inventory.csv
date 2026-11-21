@@ -1,0 +1,9 @@
+product_name,category,sku,purchase_cost,selling_price,opening_stock,min_stock_level,unit
+Basmati Rice 5kg,Grains & Rice,RICE-BAS-5KG,350,430,50,10,bag
+Toor Dal 1kg,Pulses & Dals,DAL-TOOR-1KG,110,140,40,10,kg
+Sunflower Oil 1L,Oils & Ghee,OIL-SUN-1L,130,165,30,5,bottle
+Aashirvaad Atta 5kg,Flour & Grains,ATTA-AASH-5KG,210,260,35,10,bag
+Tata Salt 1kg,Spices & Salt,SALT-TATA-1KG,20,28,60,15,packet
+Maggi Noodles 4-Pack,Instant Food,MAGGI-4PK,45,60,40,10,packet
+Fortune Mustard Oil 1L,Oils,OIL-MUST-1L,125,160,25,5,bottle
+Good Day Butter Biscuits,Snacks,SNK-GD-BUTTER,25,35,50,15,packet

@@ -10,14 +10,19 @@ module.exports = {
   getTrends: async (businessId, interval = 'day') => {
     const dateFormat = interval === 'month' ? 'YYYY-MM' : interval === 'week' ? 'IYYY-IW' : 'YYYY-MM-DD';
     const query = `
+      WITH sale_cogs AS (
+        SELECT sale_id, COALESCE(SUM(total_cost), 0) as sale_cogs
+        FROM sale_items
+        GROUP BY sale_id
+      )
       SELECT 
         TO_CHAR(s.sale_date, '${dateFormat}') as period,
         COUNT(s.id) as order_count,
         COALESCE(SUM(s.net_amount), 0) as total_revenue,
-        COALESCE(SUM(si.total_cost), 0) as total_cogs,
-        COALESCE(SUM(s.net_amount) - SUM(si.total_cost), 0) as gross_profit
+        COALESCE(SUM(COALESCE(sc.sale_cogs, 0)), 0) as total_cogs,
+        COALESCE(SUM(s.net_amount) - SUM(COALESCE(sc.sale_cogs, 0)), 0) as gross_profit
       FROM sales s
-      LEFT JOIN sale_items si ON s.id = si.sale_id
+      LEFT JOIN sale_cogs sc ON s.id = sc.sale_id
       WHERE s.business_id = $1
       GROUP BY period
       ORDER BY period ASC;
@@ -36,7 +41,7 @@ module.exports = {
       FROM products p
       JOIN sale_items si ON p.id = si.product_id
       JOIN sales s ON si.sale_id = s.id
-      WHERE p.business_id = $1
+      WHERE p.business_id = $1 AND p.is_active = TRUE
         AND s.sale_date >= CURRENT_DATE - ($2 || ' days')::INTERVAL
       GROUP BY p.id
       ORDER BY units_sold DESC

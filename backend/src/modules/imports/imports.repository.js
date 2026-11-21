@@ -1,7 +1,7 @@
 /**
  * Repository: imports
  * Purpose: Database access methods for imports and atomic stock transaction commits
- * Owner: Member 4
+ * Owner: Member 2
  */
 
 const db = require('../../config/db');
@@ -39,7 +39,7 @@ module.exports = {
       JSON.stringify(validationSummary || {}),
       importedBy || null
     ]);
-    return res.rows?.[0] || { id: 1, ...arguments[0], status: 'previewed' };
+    return res.rows[0];
   },
 
   findByFingerprint: async (businessId, fingerprint) => {
@@ -82,7 +82,6 @@ module.exports = {
 
   commitInventoryImport: async (importRecord, userId) => {
     const validRows = importRecord.validation_summary?.parsedValidRows || [];
-    // Process each valid row: insert/update products, insert opening stock movement
     for (const row of validRows) {
       // Upsert product
       const productQuery = `
@@ -106,7 +105,7 @@ module.exports = {
         row.min_stock_level,
         row.unit
       ]);
-      const productId = prodRes.rows?.[0]?.id || 1;
+      const productId = prodRes.rows[0]?.id;
 
       // Log continuous opening stock movement
       const movementQuery = `
@@ -137,7 +136,7 @@ module.exports = {
       importId: importRecord.id,
       status: 'confirmed',
       processedItems: validRows.length,
-      updatedRecord: updatedRes.rows?.[0]
+      updatedRecord: updatedRes.rows[0]
     };
   },
 
@@ -184,7 +183,7 @@ module.exports = {
         inv.totalDiscount,
         inv.netAmount
       ]);
-      const saleId = saleRes.rows?.[0]?.id || 1;
+      const saleId = saleRes.rows[0]?.id;
       createdSalesCount++;
 
       // 2. Insert Sale Items & Deduct Stock Continuously
@@ -200,7 +199,22 @@ module.exports = {
           item.sku || null,
           item.productName || null
         ]);
-        const product = prodRes.rows?.[0] || { id: 1, purchase_cost: 0 };
+        let product = prodRes.rows[0];
+        if (!product) {
+          // Auto-create product for this business if not found
+          const newProdRes = await db.query(`
+            INSERT INTO products (business_id, name, sku, category, purchase_cost, selling_price, min_stock_level, unit)
+            VALUES ($1, $2, $3, 'General', $4, $5, 5, 'pcs')
+            RETURNING id, purchase_cost;
+          `, [
+            importRecord.business_id,
+            item.productName || item.sku || 'Imported Product',
+            item.sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            Number((item.unitSellingPrice * 0.7).toFixed(2)),
+            item.unitSellingPrice
+          ]);
+          product = newProdRes.rows[0];
+        }
         const unitCost = Number(product.purchase_cost || 0);
 
         // Insert sale_item
@@ -229,20 +243,21 @@ module.exports = {
         `;
         const stockRes = await db.query(stockQuery, [product.id]);
         const previousStock = Number(stockRes.rows?.[0]?.new_stock || 0);
-        const newStock = previousStock - item.quantity;
+        const newStock = previousStock - Number(item.quantity);
+        const negativeDelta = -Math.abs(Number(item.quantity));
 
-        // Insert stock movement deduction
+        // Insert stock movement deduction with negative float delta
         const movementQuery = `
           INSERT INTO stock_movements (
             business_id, product_id, movement_type, quantity_delta,
             previous_stock, new_stock, unit_cost, reference_type, reference_id,
             reason, created_by
-          ) VALUES ($1, $2, 'sales_deduction', -$3, $4, $5, $6, 'sale', $7, 'Daily Sales Report Deduction', $8);
+          ) VALUES ($1, $2, 'sales_deduction', $3, $4, $5, $6, 'sale', $7, 'Daily Sales Report Deduction', $8);
         `;
         await db.query(movementQuery, [
           importRecord.business_id,
           product.id,
-          item.quantity,
+          negativeDelta,
           previousStock,
           newStock,
           unitCost,
@@ -265,7 +280,7 @@ module.exports = {
       status: 'confirmed',
       salesProcessed: createdSalesCount,
       itemsProcessed: validRows.length,
-      updatedRecord: updatedRes.rows?.[0]
+      updatedRecord: updatedRes.rows[0]
     };
   }
 };

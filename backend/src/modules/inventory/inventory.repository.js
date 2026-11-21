@@ -27,7 +27,7 @@ module.exports = {
         END as stock_status
       FROM products p
       LEFT JOIN latest_movements lm ON p.id = lm.product_id
-      WHERE p.business_id = $1
+      WHERE p.business_id = $1 AND p.is_active = TRUE
         AND ($2::VARCHAR IS NULL OR p.category ILIKE $2)
         AND ($3::VARCHAR IS NULL OR p.name ILIKE '%' || $3 || '%' OR p.sku ILIKE '%' || $3 || '%')
       ORDER BY p.name ASC;
@@ -87,8 +87,8 @@ module.exports = {
         END as alert_type
       FROM products p
       LEFT JOIN latest_movements lm ON p.id = lm.product_id
-      WHERE p.business_id = $1
-        AND COALESCE(lm.new_stock, 0) <= p.min_stock_level
+      WHERE p.business_id = $1 AND p.is_active = TRUE AND p.is_active = TRUE
+        AND (COALESCE(lm.new_stock, 0) <= p.min_stock_level OR COALESCE(lm.new_stock, 0) <= 0)
       ORDER BY current_stock ASC;
     `;
     const res = await db.query(query, [businessId]);

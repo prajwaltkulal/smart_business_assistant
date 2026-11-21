@@ -30,9 +30,9 @@ export default function ProductForm({ isOpen, onClose, onSave, initialData, cate
         barcode: initialData.barcode || '',
         category: initialData.category || 'General',
         unit: initialData.unit || 'pcs',
-        purchaseCost: initialData.purchase_cost || '',
-        sellingPrice: initialData.selling_price || '',
-        minStockLevel: initialData.min_stock_level || '5',
+        purchaseCost: (initialData.purchase_cost !== null && initialData.purchase_cost !== undefined) ? String(initialData.purchase_cost) : '',
+        sellingPrice: (initialData.selling_price !== null && initialData.selling_price !== undefined) ? String(initialData.selling_price) : '',
+        minStockLevel: (initialData.min_stock_level !== null && initialData.min_stock_level !== undefined) ? String(initialData.min_stock_level) : '5',
         initialStock: '0',
         description: initialData.description || ''
       });
@@ -73,9 +73,9 @@ export default function ProductForm({ isOpen, onClose, onSave, initialData, cate
       setSubmitting(true);
       await onSave({
         ...formData,
-        purchaseCost: Number(formData.purchaseCost || 0),
-        sellingPrice: Number(formData.sellingPrice || 0),
-        minStockLevel: Number(formData.minStockLevel || 5),
+        purchaseCost: formData.purchaseCost !== '' && !isNaN(Number(formData.purchaseCost)) ? Number(formData.purchaseCost) : 0,
+        sellingPrice: formData.sellingPrice !== '' && !isNaN(Number(formData.sellingPrice)) ? Number(formData.sellingPrice) : 0,
+        minStockLevel: (formData.minStockLevel !== '' && !isNaN(Number(formData.minStockLevel))) ? Math.max(0, Number(formData.minStockLevel)) : 5,
         initialStock: Number(formData.initialStock || 0)
       });
       onClose();
@@ -103,6 +103,53 @@ export default function ProductForm({ isOpen, onClose, onSave, initialData, cate
         {error && (
           <div style={{ background: '#fed7d7', color: '#c53030', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '14px' }}>
             {error}
+          </div>
+        )}
+
+        {/* Current Available Stock Banner for Existing Products */}
+        {initialData && (
+          <div style={{
+            backgroundColor: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{ fontSize: '11px', color: '#166534', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Current Physical Stock on Shelves
+              </div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#15803d', marginTop: '2px' }}>
+                {initialData.current_stock !== undefined ? initialData.current_stock : '0'} {initialData.unit || 'units'}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{
+                fontSize: '11.5px',
+                fontWeight: '700',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                backgroundColor: Number(initialData.current_stock || 0) <= 0 
+                  ? '#fee2e2' 
+                  : Number(initialData.current_stock || 0) <= Number(initialData.min_stock_level || 5)
+                  ? '#fef3c7'
+                  : '#dcfce7',
+                color: Number(initialData.current_stock || 0) <= 0 
+                  ? '#dc2626' 
+                  : Number(initialData.current_stock || 0) <= Number(initialData.min_stock_level || 5)
+                  ? '#b45309'
+                  : '#15803d'
+              }}>
+                {Number(initialData.current_stock || 0) <= 0 
+                  ? '⚠️ Out of Stock (0 remaining)' 
+                  : Number(initialData.current_stock || 0) <= Number(initialData.min_stock_level || 5)
+                  ? `⚠️ Low Stock (≤ ${initialData.min_stock_level})`
+                  : `✓ In Stock (${initialData.current_stock} remaining)`}
+              </span>
+            </div>
           </div>
         )}
 
@@ -218,8 +265,12 @@ export default function ProductForm({ isOpen, onClose, onSave, initialData, cate
                 value={formData.minStockLevel}
                 onChange={handleChange}
                 placeholder="5"
+                min="0"
                 style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
               />
+              <span style={{ fontSize: '11px', color: '#64748b', display: 'block', marginTop: '3px' }}>
+                {initialData ? `Current stock is ${initialData.current_stock || 0}. Alert triggers if stock falls to or below this.` : 'Alert triggers when stock reaches this amount.'}
+              </span>
             </div>
             {!initialData && (
               <div>

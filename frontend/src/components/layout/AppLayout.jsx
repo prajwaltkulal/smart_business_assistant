@@ -5,12 +5,17 @@
  */
 
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import '../../styles/layout.css';
 
 export default function AppLayout() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <div className="app-container">
       <Sidebar />

@@ -1,0 +1,7 @@
+date,bill_id,product_sku,product_name,quantity,selling_price,discount
+2026-11-21,BILL-5001,RICE-BAS-5KG,Basmati Rice 5kg,4,430,0
+2026-11-21,BILL-5001,DAL-TOOR-1KG,Toor Dal 1kg,3,140,5
+2026-11-21,BILL-5002,OIL-SUN-1L,Sunflower Oil 1L,2,165,0
+2026-11-21,BILL-5002,ATTA-AASH-5KG,Aashirvaad Atta 5kg,2,260,10
+2026-11-21,BILL-5003,SALT-TATA-1KG,Tata Salt 1kg,4,28,0
+2026-11-21,BILL-5003,MAGGI-4PK,Maggi Noodles 4-Pack,3,60,0

@@ -29,7 +29,7 @@ module.exports = {
       FROM products p
       LEFT JOIN latest_movements lm ON p.id = lm.product_id
       LEFT JOIN sales_velocity sv ON p.id = sv.product_id
-      WHERE p.business_id = $1
+      WHERE p.business_id = $1 AND p.is_active = TRUE
       ORDER BY units_sold DESC;
     `;
     const res = await db.query(query, [businessId, daysHistory]);

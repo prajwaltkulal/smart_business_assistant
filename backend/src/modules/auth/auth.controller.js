@@ -9,8 +9,8 @@ const service = require('./auth.service');
 module.exports = {
   register: async (req, res, next) => {
     try {
-      const { name, email, password, phone } = req.body;
-      const data = await service.register({ name, email, password, phone });
+      const { name, email, password, phone, businessName } = req.body;
+      const data = await service.register({ name, email, password, phone, businessName });
       res.status(201).json({ success: true, message: 'User registered successfully', ...data });
     } catch (err) {
       res.status(400).json({ success: false, message: err.message });

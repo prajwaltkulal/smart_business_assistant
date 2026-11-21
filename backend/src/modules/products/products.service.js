@@ -52,7 +52,9 @@ module.exports = {
       unit,
       purchaseCost: Number(purchaseCost || 0),
       sellingPrice: Number(sellingPrice || 0),
-      minStockLevel: Number(minStockLevel || 5)
+      minStockLevel: (minStockLevel !== undefined && minStockLevel !== null && !isNaN(Number(minStockLevel))) 
+        ? Math.max(0, Number(minStockLevel)) 
+        : 5
     });
 
     // If an initial opening stock was provided during creation, record it in stock_movements

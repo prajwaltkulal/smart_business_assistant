@@ -9,21 +9,23 @@ const service = require('./sales.service');
 module.exports = {
   getSales: async (req, res, next) => {
     try {
-      const { businessId, startDate, endDate, page, limit } = req.query;
+      const businessId = req.businessMembership?.business_id || req.query.businessId;
+      const { startDate, endDate, page = 1, limit = 20 } = req.query;
       const result = await service.getSales({ businessId, startDate, endDate, page, limit });
       res.json({ success: true, ...result });
     } catch (err) {
-      next(err);
+      res.status(500).json({ success: false, message: err.message });
     }
   },
 
   getDailySummary: async (req, res, next) => {
     try {
-      const { businessId, date } = req.query;
+      const businessId = req.businessMembership?.business_id || req.query.businessId;
+      const { date } = req.query;
       const summary = await service.getDailySummary({ businessId, date });
       res.json({ success: true, data: summary });
     } catch (err) {
-      next(err);
+      res.status(500).json({ success: false, message: err.message });
     }
   },
 
@@ -36,7 +38,7 @@ module.exports = {
       }
       res.json({ success: true, data: sale });
     } catch (err) {
-      next(err);
+      res.status(404).json({ success: false, message: err.message });
     }
   }
 };

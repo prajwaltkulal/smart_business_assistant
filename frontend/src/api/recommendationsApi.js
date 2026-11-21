@@ -1,11 +1,16 @@
 /**
  * API Client: recommendationsApi
- * Purpose: Frontend HTTP methods for recommendations endpoints
- * Owner: Member 4
+ * Purpose: Frontend HTTP methods for budget-aware restocking suggestions
+ * Owner: Member 2
  */
 
 import { apiRequest } from './apiClient';
 
 export const recommendationsApi = {
-  // TODO: Add endpoint calls
+  getRestockPlan: (payload = { budget: 10000 }) => {
+    return apiRequest('/recommendations/restock', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
 };

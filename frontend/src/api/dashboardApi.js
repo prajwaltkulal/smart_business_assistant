@@ -1,11 +1,13 @@
 /**
  * API Client: dashboardApi
- * Purpose: Frontend HTTP methods for dashboard endpoints
- * Owner: Member 3
+ * Purpose: Frontend HTTP methods for dashboard KPI summaries and alerts
+ * Owner: Member 2
  */
 
 import { apiRequest } from './apiClient';
 
 export const dashboardApi = {
-  // TODO: Add endpoint calls
+  getSummary: () => {
+    return apiRequest('/dashboard/summary');
+  }
 };

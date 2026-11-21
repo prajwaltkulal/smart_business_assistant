@@ -84,22 +84,27 @@ export default function ProductList({
                   <td style={{ padding: '12px 8px' }}>₹{Number(p.purchase_cost).toFixed(2)}</td>
                   <td style={{ padding: '12px 8px', fontWeight: 'bold' }}>₹{Number(p.selling_price).toFixed(2)}</td>
                   <td style={{ padding: '12px 8px' }}>
-                    <strong>{p.current_stock}</strong> {p.unit}
+                    <div style={{ fontSize: '15px', fontWeight: '800', color: Number(p.current_stock || 0) <= 0 ? '#dc2626' : '#0f172a' }}>
+                      {p.current_stock} <span style={{ fontSize: '12px', fontWeight: '500', color: '#64748b' }}>{p.unit}</span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>
+                      Alert at ≤ {p.min_stock_level}
+                    </div>
                   </td>
                   <td style={{ padding: '12px 8px' }}>
                     {p.stock_status === 'out_of_stock' && (
-                      <span style={{ background: '#fed7d7', color: '#c53030', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                        Out of Stock
+                      <span style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                        ⚠️ Out of Stock (0 {p.unit})
                       </span>
                     )}
                     {p.stock_status === 'low_stock' && (
-                      <span style={{ background: '#feebc8', color: '#c05621', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                        Low Stock (≤{p.min_stock_level})
+                      <span style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                        ⚠️ Low Stock ({p.current_stock} left ≤ {p.min_stock_level})
                       </span>
                     )}
                     {p.stock_status === 'in_stock' && (
-                      <span style={{ background: '#c6f6d5', color: '#276749', padding: '3px 8px', borderRadius: '4px', fontSize: '12px' }}>
-                        In Stock
+                      <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
+                        ✓ In Stock ({p.current_stock} {p.unit})
                       </span>
                     )}
                   </td>

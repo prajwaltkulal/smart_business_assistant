@@ -19,28 +19,47 @@ module.exports = {
       const unitsSold = Number(item.units_sold || 0);
       const dailyVelocity = unitsSold / daysHistory; // units sold per day
       const targetQuantity = Math.ceil(dailyVelocity * targetStockDays);
-      const minStock = Number(item.min_stock_level || 5);
-      const purchaseCost = Number(item.purchase_cost || 0);
+      const minStock = (item.min_stock_level !== null && item.min_stock_level !== undefined && !isNaN(Number(item.min_stock_level)))
+        ? Math.max(0, Number(item.min_stock_level))
+        : 5;
+      const purchaseCost = Number(item.purchase_cost || 0) > 0 
+        ? Number(item.purchase_cost) 
+        : (Number(item.selling_price || 0) * 0.7 || 50);
 
-      // Determine restock urgency
+      // Determine restock urgency accurately based on actual stock levels and thresholds
       let urgency = 'none';
       let reason = '';
+      let neededUnits = 0;
 
-      if (currentStock <= 0 && dailyVelocity > 0) {
+      if (currentStock <= 0) {
         urgency = 'critical';
-        reason = `Out of stock with active daily demand (${dailyVelocity.toFixed(1)} units/day).`;
-      } else if (currentStock <= minStock && dailyVelocity > 0) {
+        if (dailyVelocity > 0) {
+          reason = `Out of stock with active daily demand (${dailyVelocity.toFixed(1)} units/day). Urgent replenishment needed.`;
+          neededUnits = Math.max(targetQuantity, Math.max(minStock * 2, 5));
+        } else {
+          reason = `Product is completely out of stock (0 units remaining). Replenish shelf baseline.`;
+          neededUnits = Math.max(minStock * 2, 5);
+        }
+      } else if (currentStock <= minStock) {
         urgency = 'high';
-        const daysRemaining = dailyVelocity > 0 ? (currentStock / dailyVelocity).toFixed(1) : 'N/A';
-        reason = `Stock below safety threshold (${minStock} units). Projected to stock out in ${daysRemaining} days.`;
-      } else if (currentStock < targetQuantity && dailyVelocity > 0) {
+        if (dailyVelocity > 0) {
+          const daysRemaining = (currentStock / dailyVelocity).toFixed(1);
+          reason = `Stock (${currentStock}) is at or below safety threshold (${minStock} units). Projected to stock out in ${daysRemaining} days.`;
+          neededUnits = Math.max(1, targetQuantity - currentStock, (minStock * 2) - currentStock);
+        } else {
+          reason = `Stock (${currentStock}) has reached minimum safety threshold (${minStock} units). Replenishment recommended.`;
+          neededUnits = Math.max(1, (minStock * 2) - currentStock, 5);
+        }
+      } else if (dailyVelocity > 0 && currentStock < targetQuantity) {
         urgency = 'medium';
-        reason = `Current stock will not cover the desired ${targetStockDays}-day buffer.`;
+        reason = `Current stock (${currentStock}) will not cover the desired ${targetStockDays}-day sales buffer.`;
+        neededUnits = Math.max(1, targetQuantity - currentStock);
       }
 
-      if (urgency !== 'none' && purchaseCost > 0) {
-        const neededUnits = Math.max(1, targetQuantity - currentStock);
+      if (urgency !== 'none' && neededUnits > 0) {
         const estimatedItemCost = neededUnits * purchaseCost;
+        const potentialRevenue = neededUnits * Number(item.selling_price || purchaseCost * 1.3);
+        const expectedProfit = potentialRevenue - estimatedItemCost;
 
         recommendations.push({
           productId: item.id,
@@ -48,10 +67,12 @@ module.exports = {
           sku: item.sku,
           category: item.category,
           currentStock,
+          minStockLevel: minStock,
           dailyVelocity: Number(dailyVelocity.toFixed(2)),
           suggestedUnits: neededUnits,
           purchaseCost,
           estimatedCost: estimatedItemCost,
+          expectedProfit,
           urgency,
           reason
         });
@@ -95,7 +116,8 @@ module.exports = {
       totalEstimatedCost: allocatedBudget,
       remainingBudget: budget - allocatedBudget,
       recommendedItemCount: budgetedPlan.length,
-      plan: budgetedPlan
+      plan: budgetedPlan,
+      recommendations: budgetedPlan
     };
   }
 };

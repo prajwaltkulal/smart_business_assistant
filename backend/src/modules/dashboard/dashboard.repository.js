@@ -10,17 +10,22 @@ module.exports = {
   getAggregatedSummary: async (businessId) => {
     const today = new Date().toISOString().split('T')[0];
 
-    // 1. Sales & Revenue Metrics (Today & All-time)
+    // 1. Sales & Revenue Metrics (Today & All-time) - grouped safely to avoid Cartesian duplicate sums
     const salesQuery = `
+      WITH sale_cogs AS (
+        SELECT sale_id, COALESCE(SUM(total_cost), 0) as sale_cogs
+        FROM sale_items
+        GROUP BY sale_id
+      )
       SELECT 
         COUNT(s.id) as all_time_sales_count,
         COALESCE(SUM(s.net_amount), 0) as all_time_revenue,
-        COALESCE(SUM(si.total_cost), 0) as all_time_cogs,
+        COALESCE(SUM(COALESCE(sc.sale_cogs, 0)), 0) as all_time_cogs,
         COALESCE(SUM(CASE WHEN s.sale_date = $2 THEN s.net_amount ELSE 0 END), 0) as today_revenue,
-        COALESCE(SUM(CASE WHEN s.sale_date = $2 THEN si.total_cost ELSE 0 END), 0) as today_cogs,
+        COALESCE(SUM(CASE WHEN s.sale_date = $2 THEN COALESCE(sc.sale_cogs, 0) ELSE 0 END), 0) as today_cogs,
         COUNT(CASE WHEN s.sale_date = $2 THEN s.id ELSE NULL END) as today_sales_count
       FROM sales s
-      LEFT JOIN sale_items si ON s.id = si.sale_id
+      LEFT JOIN sale_cogs sc ON s.id = sc.sale_id
       WHERE s.business_id = $1;
     `;
 
@@ -40,7 +45,7 @@ module.exports = {
         COUNT(CASE WHEN COALESCE(lm.new_stock, 0) > p.min_stock_level THEN 1 END) as in_stock_count
       FROM products p
       LEFT JOIN latest_movements lm ON p.id = lm.product_id
-      WHERE p.business_id = $1;
+      WHERE p.business_id = $1 AND p.is_active = TRUE;
     `;
 
     const [salesRes, invRes] = await Promise.all([

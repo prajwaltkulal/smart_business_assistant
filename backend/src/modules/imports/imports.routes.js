@@ -1,12 +1,17 @@
 /**
  * Routes: imports
  * Purpose: Express router for dual CSV imports (Initial Inventory & Daily Sales Reports)
- * Owner: Member 4
+ * Owner: Member 2
  */
 
 const express = require('express');
 const router = express.Router();
 const controller = require('./imports.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
+const businessAccess = require('../../middleware/businessAccess.middleware');
+
+router.use(authMiddleware);
+router.use(businessAccess());
 
 // Upload & Validate Preview
 router.post('/preview/initial-inventory', controller.previewInitialInventory);

@@ -116,26 +116,31 @@ export default function StockOverview({
                   </td>
                   <td style={{ padding: '12px 8px' }}>₹{Number(item.purchase_cost).toFixed(2)}</td>
                   <td style={{ padding: '12px 8px' }}>₹{Number(item.selling_price).toFixed(2)}</td>
-                  <td style={{ padding: '12px 8px', fontSize: '15px' }}>
-                    <strong>{item.current_stock}</strong> {item.unit}
+                  <td style={{ padding: '12px 8px' }}>
+                    <div style={{ fontSize: '15px', fontWeight: '800', color: Number(item.current_stock || 0) <= 0 ? '#dc2626' : '#0f172a' }}>
+                      {item.current_stock} <span style={{ fontSize: '12px', fontWeight: '500', color: '#64748b' }}>{item.unit}</span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>
+                      Safety Min: {item.min_stock_level}
+                    </div>
                   </td>
                   <td style={{ padding: '12px 8px', fontWeight: '500' }}>
                     ₹{Number(item.total_valuation || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
                   <td style={{ padding: '12px 8px' }}>
                     {item.stock_status === 'out_of_stock' && (
-                      <span style={{ background: '#fed7d7', color: '#c53030', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                        Out of Stock
+                      <span style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                        ⚠️ Out of Stock (0 {item.unit})
                       </span>
                     )}
                     {item.stock_status === 'low_stock' && (
-                      <span style={{ background: '#feebc8', color: '#c05621', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                        Low Stock (≤{item.min_stock_level})
+                      <span style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                        ⚠️ Low Stock ({item.current_stock} left ≤ {item.min_stock_level})
                       </span>
                     )}
                     {item.stock_status === 'in_stock' && (
-                      <span style={{ background: '#c6f6d5', color: '#276749', padding: '3px 8px', borderRadius: '4px', fontSize: '12px' }}>
-                        In Stock
+                      <span style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
+                        ✓ In Stock ({item.current_stock} {item.unit})
                       </span>
                     )}
                   </td>

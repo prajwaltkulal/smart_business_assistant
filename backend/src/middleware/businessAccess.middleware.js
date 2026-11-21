@@ -9,15 +9,26 @@ const db = require('../config/db');
 module.exports = function businessAccessMiddleware(requiredRole = null) {
   return async (req, res, next) => {
     try {
-      const businessId = req.headers['x-business-id'] || req.params.businessId || req.body.businessId || req.query.businessId;
+      let businessId = req.headers['x-business-id'] || req.params.businessId || req.body.businessId || req.query.businessId;
       const userId = req.user?.id;
 
       if (!userId) {
         return res.status(401).json({ success: false, message: 'Authentication required.' });
       }
 
-      if (!businessId) {
-        return res.status(400).json({ success: false, message: 'businessId is required (as header X-Business-Id or parameter).' });
+      // If businessId is not explicitly sent or invalid, auto-detect user's primary business
+      if (!businessId || isNaN(Number(businessId)) || Number(businessId) <= 0) {
+        const findBiz = `
+          SELECT business_id FROM business_members 
+          WHERE user_id = $1 AND is_active = TRUE 
+          ORDER BY (role = 'owner') DESC, id ASC LIMIT 1;
+        `;
+        const autoRes = await db.query(findBiz, [userId]);
+        if (autoRes.rows && autoRes.rows.length > 0) {
+          businessId = autoRes.rows[0].business_id;
+        } else {
+          return res.status(400).json({ success: false, message: 'No active business associated with your account.' });
+        }
       }
 
       const query = `
@@ -27,7 +38,7 @@ module.exports = function businessAccessMiddleware(requiredRole = null) {
         WHERE bm.business_id = $1 AND bm.user_id = $2 AND bm.is_active = TRUE AND b.is_active = TRUE
         LIMIT 1;
       `;
-      const result = await db.query(query, [businessId, userId]);
+      const result = await db.query(query, [Number(businessId), userId]);
 
       if (!result.rows || result.rows.length === 0) {
         return res.status(403).json({ success: false, message: 'Access denied: You are not an active member of this business.' });

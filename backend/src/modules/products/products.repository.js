@@ -34,9 +34,9 @@ module.exports = {
       category ? category.trim() : 'General',
       description || null,
       unit || 'pcs',
-      purchaseCost || 0.00,
-      sellingPrice || 0.00,
-      minStockLevel || 5.00
+      purchaseCost !== undefined && purchaseCost !== null && !isNaN(Number(purchaseCost)) ? Number(purchaseCost) : 0.00,
+      sellingPrice !== undefined && sellingPrice !== null && !isNaN(Number(sellingPrice)) ? Number(sellingPrice) : 0.00,
+      minStockLevel !== undefined && minStockLevel !== null && !isNaN(Number(minStockLevel)) ? Math.max(0, Number(minStockLevel)) : 5.00
     ]);
     return res.rows[0];
   },
@@ -135,9 +135,9 @@ module.exports = {
       category ? category.trim() : null,
       description !== undefined ? description : null,
       unit || null,
-      purchaseCost !== undefined ? Number(purchaseCost) : null,
-      sellingPrice !== undefined ? Number(sellingPrice) : null,
-      minStockLevel !== undefined ? Number(minStockLevel) : null
+      purchaseCost !== undefined && purchaseCost !== null && !isNaN(Number(purchaseCost)) ? Number(purchaseCost) : null,
+      sellingPrice !== undefined && sellingPrice !== null && !isNaN(Number(sellingPrice)) ? Number(sellingPrice) : null,
+      minStockLevel !== undefined && minStockLevel !== null && !isNaN(Number(minStockLevel)) ? Math.max(0, Number(minStockLevel)) : null
     ]);
     return res.rows?.[0] || null;
   },
